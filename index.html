@@ -2,14 +2,16 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Memory Box</title>
     <style>
         /* デザイン：洗練されたニュアンスカラー */
         body { 
-            background-color: #f7f3f0; /* 柔らかいグレージュ */
+            background-color: #f7f3f0; 
             color: #4a4a4a; 
-            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; /* 上品な明朝系 */
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
             margin: 0; 
+            -webkit-tap-highlight-color: transparent; /* タップ時の青枠防止 */
         }
 
         /* ロック画面 */
@@ -18,64 +20,72 @@
             background: #f7f3f0; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             z-index: 1000; 
+            padding: 20px;
         }
-        #lock-screen h1 { font-weight: 200; letter-spacing: 10px; color: #a89080; }
+        #lock-screen h1 { font-weight: 200; letter-spacing: 8px; color: #a89080; font-size: 1.8rem; }
         #lock-screen input { 
             background: #fff; border: 1px solid #d1c1b7; color: #4a4a4a; 
-            padding: 12px 20px; border-radius: 25px; text-align: center; 
-            font-size: 16px; outline: none; transition: 0.3s;
+            padding: 15px 25px; border-radius: 30px; text-align: center; 
+            font-size: 18px; width: 80%; max-width: 250px; outline: none; border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        #lock-screen input:focus { border-color: #a89080; box-shadow: 0 0 10px rgba(168,144,128,0.2); }
 
         /* メインコンテンツ */
-        #content { display: none; padding: 60px 20px; max-width: 1000px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 60px; }
-        header h1 { font-weight: 300; font-size: 2.5rem; letter-spacing: 8px; color: #a89080; }
+        #content { display: none; padding: 40px 15px; max-width: 1000px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 { font-weight: 300; font-size: 1.8rem; letter-spacing: 6px; color: #a89080; }
 
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; }
+        /* レスポンシブ・グリッド */
+        .gallery { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); /* スマホでは1列 */
+            gap: 25px; 
+        }
+
+        @media (min-width: 600px) {
+            .gallery { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } /* タブレット・PC */
+        }
         
         /* 写真のカード */
         .gallery-item { 
             position: relative;
-            background: #fff; border-radius: 2px; padding: 10px 10px 40px 10px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            background: #fff; border-radius: 4px; padding: 8px 8px 35px 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
             cursor: pointer; overflow: hidden;
         }
-        .gallery-item:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .gallery-item img { width: 100%; height: 280px; object-fit: cover; filter: sepia(10%); }
+        .gallery-item img { width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; display: block; }
         
         .caption { 
-            margin-top: 15px; text-align: center; font-size: 0.85rem; 
-            letter-spacing: 2px; color: #888; 
+            margin-top: 12px; text-align: center; font-size: 0.8rem; 
+            letter-spacing: 1px; color: #999; 
         }
 
-        /* --- カンガルーとコアラのアニメーション --- */
+        /* --- アニメーション --- */
         .animal {
-            position: absolute; font-size: 1.8rem; bottom: 50px; z-index: 5;
-            pointer-events: none; opacity: 0.8;
+            position: absolute; font-size: 2rem; bottom: 40px; z-index: 5;
+            pointer-events: none; opacity: 0.9;
         }
-        .kangaroo { animation: walk 12s linear infinite; }
-        .koala { animation: walk 20s linear infinite reverse; bottom: 80px; }
+        .kangaroo { animation: walk 10s linear infinite; }
+        .koala { animation: walk 15s linear infinite reverse; bottom: 70px; }
 
         @keyframes walk {
-            0% { left: -50px; transform: scaleX(1); }
-            49% { transform: scaleX(1); }
-            50% { left: 100%; transform: scaleX(-1); }
-            99% { transform: scaleX(-1); }
-            100% { left: -50px; transform: scaleX(1); }
+            0% { left: -60px; transform: scaleX(1); }
+            50% { left: 105%; transform: scaleX(1); }
+            51% { transform: scaleX(-1); }
+            100% { left: -60px; transform: scaleX(-1); }
         }
 
-        /* モーダル（拡大画面） */
+        /* モーダル */
         #modal { 
             display: none; position: fixed; inset: 0; 
             background: rgba(255,255,255,0.98); 
             z-index: 2000; flex-direction: column; justify-content: center; align-items: center; 
+            padding: 20px;
         }
-        #modal img { max-width: 85%; max-height: 75%; border-radius: 2px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        #modal img { max-width: 100%; max-height: 70%; object-fit: contain; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
         #modal-comment { 
-            margin-top: 30px; color: #666; font-size: 1rem; 
-            max-width: 80%; line-height: 1.8; text-align: center;
+            margin-top: 25px; color: #666; font-size: 0.95rem; 
+            max-width: 90%; line-height: 1.6; text-align: center;
         }
     </style>
 </head>
@@ -83,55 +93,44 @@
 
 <div id="lock-screen">
     <h1>Archive</h1>
-    <input type="password" id="pw" placeholder="Password" onkeydown="if(event.key==='Enter')unlock()">
+    <input type="password" id="pw" placeholder="Password" inputmode="numeric" onkeydown="if(event.key==='Enter')unlock()">
 </div>
 
 <div id="content">
     <header><h1>MEMORIES</h1></header>
     <div class="gallery">
 
-        <div class="gallery-item" onclick="openModal('pic1.png', 'あの日、みんなで行った大切な場所。')">
-            <img src="pic1.png" onerror="this.src='https://via.placeholder.com/400x500/e9e4e0/888?text=Photo+01'">
+        <div class="gallery-item" onclick="openModal('pic1.png', '素敵な思い出。')">
+            <img src="pic1.png" onerror="this.src='https://via.placeholder.com/400x500/eee/999?text=Photo+01'">
             <div class="animal kangaroo">🦘</div>
             <div class="caption">Memory #01</div>
         </div>
 
-        <div class="gallery-item" onclick="openModal('pic2.png', '笑いすぎてお腹が痛かった帰り道。')">
-            <img src="pic2.png" onerror="this.src='https://via.placeholder.com/400x500/e9e4e0/888?text=Photo+02'">
+        <div class="gallery-item" onclick="openModal('pic2.png', 'お気に入りの一枚。')">
+            <img src="pic2.png" onerror="this.src='https://via.placeholder.com/400x500/eee/999?text=Photo+02'">
             <div class="animal koala">🐨</div>
             <div class="caption">Memory #02</div>
         </div>
 
-        <div class="gallery-item" onclick="openModal('pic3.png', 'また来年も一緒に行こうね。')">
-            <img src="pic3.png" onerror="this.src='https://via.placeholder.com/400x500/e9e4e0/888?text=Photo+03'">
-            <div class="animal kangaroo">🦘</div>
-            <div class="caption">Memory #03</div>
         </div>
-
-        <div class="gallery-item" onclick="openModal('pic4.png', '特別な一日、特別な写真。')">
-            <img src="pic4.png" onerror="this.src='https://via.placeholder.com/400x500/e9e4e0/888?text=Photo+04'">
-            <div class="animal koala">🐨</div>
-            <div class="caption">Memory #04</div>
-        </div>
-
-    </div>
 </div>
 
 <div id="modal" onclick="this.style.display='none'">
     <img id="m-img">
     <div id="modal-comment"></div>
+    <p style="color:#ccc; font-size:12px; margin-top:20px;">閉じるには画面をタップ</p>
 </div>
 
 <script>
     function unlock() {
-        // パスワードは「1234」のままにしています
         if(document.getElementById('pw').value === '1234') {
-            document.getElementById('lock-screen').style.transition = '0.5s';
+            document.getElementById('lock-screen').style.transition = 'opacity 0.6s ease';
             document.getElementById('lock-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
-            }, 500);
+                window.scrollTo(0, 0);
+            }, 600);
         } else { 
             alert('Incorrect password'); 
         }
